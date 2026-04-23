@@ -1,0 +1,63 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Aquascape Hub",
+        "description": "Find the auth token in the Aquascape web dashboard at smartcontrol.aquascapeinc.com → Device → Device Info.",
+        "data": {
+          "name": "Name",
+          "token": "Auth token",
+          "base_url": "Server URL (advanced)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid auth token.",
+      "cannot_connect": "Cannot reach the Aquascape backend."
+    },
+    "abort": {
+      "already_configured": "This token is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Aquascape options",
+        "data": {
+          "scan_interval": "Poll interval (seconds, 10-600)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "animation_mode": {
+        "name": "Animation mode"
+      }
+    },
+    "number": {
+      "animation_speed": {
+        "name": "Animation speed"
+      }
+    },
+    "sensor": {
+      "rssi": {
+        "name": "Signal strength"
+      }
+    }
+  },
+  "services": {
+    "set_palette": {
+      "name": "Set custom palette",
+      "description": "Activate any RGB color animation on an Aquascape Hub."
+    },
+    "set_white_mode": {
+      "name": "Set dedicated white mode",
+      "description": "Switch the lights to the dedicated white channel."
+    },
+    "set_solid_color": {
+      "name": "Set solid color",
+      "description": "Set a solid RGB color (RGB-channel mode)."
+    }
+  }
+}

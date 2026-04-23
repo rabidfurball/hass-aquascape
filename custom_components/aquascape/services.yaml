@@ -1,0 +1,68 @@
+set_palette:
+  name: Set custom palette
+  description: >
+    Activate any RGB color animation on an Aquascape Smart Control Hub.
+    Supports any number of palette colors.
+  fields:
+    device_id:
+      name: Device
+      description: The Aquascape Hub to control.
+      required: true
+      selector:
+        device:
+          integration: aquascape
+    palette:
+      name: Palette
+      description: List of [R, G, B] triplets (1+ colors).
+      required: true
+      example: "[[255, 0, 128], [0, 200, 255], [80, 255, 0]]"
+      selector:
+        object:
+    strobe:
+      name: Strobe
+      description: Strobe (true) or fade (false) between palette colors.
+      default: false
+      selector:
+        boolean:
+    speed:
+      name: Animation speed
+      description: Matches the Aquascape app's slider value.
+      default: 5000
+      selector:
+        number:
+          min: 1
+          max: 10000
+          step: 100
+          mode: slider
+
+set_white_mode:
+  name: Set dedicated white mode
+  description: >
+    Switch the lights to the dedicated white channel for a purer white than
+    RGB(255,255,255).
+  fields:
+    device_id:
+      name: Device
+      description: The Aquascape Hub to control.
+      required: true
+      selector:
+        device:
+          integration: aquascape
+
+set_solid_color:
+  name: Set solid color
+  description: Set a solid RGB color (RGB-channel mode).
+  fields:
+    device_id:
+      name: Device
+      required: true
+      selector:
+        device:
+          integration: aquascape
+    rgb_color:
+      name: RGB color
+      description: Color as [R, G, B], each 0-255.
+      required: true
+      example: "[255, 0, 128]"
+      selector:
+        color_rgb:

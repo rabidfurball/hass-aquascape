@@ -1,0 +1,12 @@
+{
+  "domain": "aquascape",
+  "name": "Aquascape Smart Control",
+  "version": "0.1.0",
+  "codeowners": ["@rabidfurball"],
+  "config_flow": true,
+  "documentation": "https://github.com/rabidfurball/hass-aquascape",
+  "issue_tracker": "https://github.com/rabidfurball/hass-aquascape/issues",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "integration_type": "device"
+}
