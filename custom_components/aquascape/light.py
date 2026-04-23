@@ -171,7 +171,8 @@ class AquascapeLight(CoordinatorEntity[AquascapeCoordinator], LightEntity):
 
         # Look up the live values from the helper entities the user toggles.
         # These are stored in hass.data alongside the coordinator.
-        store = self.hass.data.get(DOMAIN, {}).get(
+        hass = self.coordinator.hass
+        store = hass.data.get(DOMAIN, {}).get(
             f"{self.coordinator.entry.entry_id}_helpers", {}
         )
         if store:

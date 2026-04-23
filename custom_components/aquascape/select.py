@@ -111,8 +111,14 @@ class AquascapeAnimationModeSelect(
         await self.coordinator.async_request_refresh_soon()
 
     def _publish_helper_state(self) -> None:
-        """Stash this select's value where light.py can read it."""
-        store = self.hass.data.setdefault(DOMAIN, {}).setdefault(
+        """Stash this select's value where light.py can read it.
+
+        Uses `self.coordinator.hass` because `self.hass` isn't set until
+        `async_added_to_hass` — but we need the value visible from __init__
+        so that light.py can read it on first effect application.
+        """
+        hass = self.coordinator.hass
+        store = hass.data.setdefault(DOMAIN, {}).setdefault(
             f"{self.coordinator.entry.entry_id}_helpers", {}
         )
         store["strobe"] = self._current == MODE_STROBE

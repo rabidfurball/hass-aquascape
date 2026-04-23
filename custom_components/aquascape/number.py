@@ -89,7 +89,8 @@ class AquascapeAnimationSpeedNumber(
         await self.coordinator.async_request_refresh_soon()
 
     def _publish_helper_state(self) -> None:
-        store = self.hass.data.setdefault(DOMAIN, {}).setdefault(
+        hass = self.coordinator.hass
+        store = hass.data.setdefault(DOMAIN, {}).setdefault(
             f"{self.coordinator.entry.entry_id}_helpers", {}
         )
         store["speed"] = int(self._current)
