@@ -6,7 +6,9 @@ fountain lights (model 84074).
 
 Aquascape doesn't publish an API. This integration uses a reverse-engineered
 HTTPS interface to the Blynk-based backend at
-`smartcontrol.aquascapeinc.com`.
+`smartcontrol.aquascapeinc.com`. See [docs/API.md](docs/API.md) for the
+full protocol spec — pin map, V3 format, captured presets, and what's
+not available (local control, MQTT push).
 
 [hub]: https://www.aquascapeinc.com/smart-control-hub
 
