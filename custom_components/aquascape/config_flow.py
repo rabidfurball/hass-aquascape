@@ -15,12 +15,19 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import AquascapeAPIError, AquascapeAuthError, AquascapeClient
 from .const import (
     CONF_BASE_URL,
+    CONF_DEVICE_TYPE,
     CONF_NAME,
     CONF_SCAN_INTERVAL,
     CONF_TOKEN,
     DEFAULT_BASE_URL,
     DEFAULT_SCAN_INTERVAL,
+    DEVICE_TYPE_LIGHT,
+    DEVICE_TYPE_PUMP,
     DOMAIN,
+    PIN_POWER,
+    PIN_PUMP_SPEED,
+    PIN_V3,
+    PUMP_SIGNATURE_PINS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -47,7 +54,9 @@ class AquascapeConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             token = user_input[CONF_TOKEN].strip()
-            base_url = user_input.get(CONF_BASE_URL, DEFAULT_BASE_URL).strip().rstrip("/")
+            base_url = (
+                user_input.get(CONF_BASE_URL, DEFAULT_BASE_URL).strip().rstrip("/")
+            )
             await self.async_set_unique_id(token)
             self._abort_if_unique_id_configured()
 
@@ -55,11 +64,28 @@ class AquascapeConfigFlow(ConfigFlow, domain=DOMAIN):
             client = AquascapeClient(session, token, base_url=base_url)
             try:
                 connected = await client.is_connected()
+                state = await client.get_all()
             except AquascapeAuthError:
                 errors["base"] = "invalid_auth"
             except AquascapeAPIError:
                 errors["base"] = "cannot_connect"
             else:
+                pins = {str(key).lower() for key in state}
+                if PIN_V3.lower() in pins:
+                    device_type = DEVICE_TYPE_LIGHT
+                elif (
+                    PIN_POWER.lower() in pins
+                    and PIN_PUMP_SPEED.lower() in pins
+                    and bool(pins & PUMP_SIGNATURE_PINS)
+                ):
+                    device_type = DEVICE_TYPE_PUMP
+                else:
+                    errors["base"] = "unsupported_device"
+                    return self.async_show_form(
+                        step_id="user",
+                        data_schema=USER_SCHEMA,
+                        errors=errors,
+                    )
                 if not connected:
                     # Token is valid but the device is offline. Allow the
                     # user to proceed — they may want to set it up before
@@ -74,6 +100,7 @@ class AquascapeConfigFlow(ConfigFlow, domain=DOMAIN):
                         CONF_NAME: user_input[CONF_NAME],
                         CONF_TOKEN: token,
                         CONF_BASE_URL: base_url,
+                        CONF_DEVICE_TYPE: device_type,
                     },
                 )
 

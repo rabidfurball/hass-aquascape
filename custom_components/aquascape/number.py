@@ -14,7 +14,9 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .api import AquascapeAPIError
 from .const import (
     CONF_NAME,
+    CONF_DEVICE_TYPE,
     DOMAIN,
+    DEVICE_TYPE_LIGHT,
     MANUFACTURER,
     MODEL,
     PIN_ANIMATION_SPEED,
@@ -32,6 +34,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: AquascapeCoordinator = hass.data[DOMAIN][entry.entry_id]
+    if entry.data.get(CONF_DEVICE_TYPE, DEVICE_TYPE_LIGHT) != DEVICE_TYPE_LIGHT:
+        return
     async_add_entities([AquascapeAnimationSpeedNumber(coordinator)])
 
 

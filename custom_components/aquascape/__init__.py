@@ -23,8 +23,10 @@ from .api import (
 )
 from .const import (
     CONF_BASE_URL,
+    CONF_DEVICE_TYPE,
     CONF_TOKEN,
     DEFAULT_BASE_URL,
+    DEVICE_TYPE_LIGHT,
     DOMAIN,
     PIN_ANIMATION_SPEED,
     PIN_V3,
@@ -37,6 +39,7 @@ from .coordinator import AquascapeCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [
+    Platform.FAN,
     Platform.LIGHT,
     Platform.NUMBER,
     Platform.SELECT,
@@ -91,7 +94,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.async_on_unload(entry.add_update_listener(_async_options_updated))
 
-    _async_register_services(hass)
+    if entry.data.get(CONF_DEVICE_TYPE, DEVICE_TYPE_LIGHT) == DEVICE_TYPE_LIGHT:
+        _async_register_services(hass)
 
     return True
 
@@ -101,7 +105,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
-        if not hass.data[DOMAIN]:
+        has_light_entries = any(
+            coordinator.entry.data.get(CONF_DEVICE_TYPE, DEVICE_TYPE_LIGHT)
+            == DEVICE_TYPE_LIGHT
+            for coordinator in hass.data[DOMAIN].values()
+            if isinstance(coordinator, AquascapeCoordinator)
+        )
+        if not has_light_entries:
             hass.services.async_remove(DOMAIN, SERVICE_SET_PALETTE)
             hass.services.async_remove(DOMAIN, SERVICE_SET_WHITE_MODE)
             hass.services.async_remove(DOMAIN, SERVICE_SET_SOLID_COLOR)
@@ -165,7 +175,9 @@ def _async_register_services(hass: HomeAssistant) -> None:
             raise HomeAssistantError(str(err)) from err
         await coordinator.async_request_refresh_soon()
 
-    hass.services.async_register(DOMAIN, SERVICE_SET_PALETTE, _set_palette, schema=PALETTE_SCHEMA)
+    hass.services.async_register(
+        DOMAIN, SERVICE_SET_PALETTE, _set_palette, schema=PALETTE_SCHEMA
+    )
     hass.services.async_register(
         DOMAIN, SERVICE_SET_WHITE_MODE, _set_white_mode, schema=WHITE_MODE_SCHEMA
     )

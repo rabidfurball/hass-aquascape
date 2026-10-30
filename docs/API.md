@@ -66,6 +66,24 @@ specific brightness in one call).
 brightness, color, scene, mode change). They appear to be device-internal
 constants that can be safely ignored.
 
+## Virtual Pin Map (WiFi Smart Pump Receiver)
+
+Observed on an Aquascape pump receiver running firmware 0.5.8.
+
+| Pin | Type | Range | Meaning |
+|---|---|---|---|
+| `V1` | int | 0 / 1 | Power |
+| `V2` | int | 1–10 | Pump speed |
+| `V10` | number | °C | Controller temperature |
+| `V11` | number | V | Controller voltage |
+| `V13` | number | V | Line voltage |
+| `V14` | number | A | Current |
+| `V15` | number | W | Power draw |
+
+The Home Assistant integration intentionally exposes only power and speed for
+the pump. The telemetry pins are used as a read-only device signature so a
+lighting hub is not accidentally treated as a pump.
+
 ### V3 — color / animation format
 
 V3 is a single string with fields separated by null bytes (`\x00`).

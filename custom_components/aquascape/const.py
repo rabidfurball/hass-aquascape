@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Final
 
 DOMAIN: Final = "aquascape"
@@ -11,6 +12,10 @@ CONF_TOKEN: Final = "token"
 CONF_NAME: Final = "name"
 CONF_BASE_URL: Final = "base_url"
 CONF_SCAN_INTERVAL: Final = "scan_interval"
+CONF_DEVICE_TYPE: Final = "device_type"
+
+DEVICE_TYPE_LIGHT: Final = "light"
+DEVICE_TYPE_PUMP: Final = "pump"
 
 # Defaults
 DEFAULT_BASE_URL: Final = "https://smartcontrol.aquascapeinc.com"
@@ -22,6 +27,14 @@ PIN_BRIGHTNESS: Final = "V2"
 PIN_V3: Final = "V3"  # color/animation state
 PIN_ANIMATION_SPEED: Final = "V8"
 PIN_RSSI: Final = "V30"
+
+# Smart Pump Receiver pins. V1 and V2 are shared with the lighting hub, but
+# have pump-specific meanings when the device profile is Pump.
+PIN_PUMP_SPEED: Final = "V2"
+PUMP_SPEED_MIN: Final = 1
+PUMP_SPEED_MAX: Final = 10
+PUMP_SPEED_DEFAULT: Final = 1
+PUMP_SIGNATURE_PINS: Final = frozenset({"v10", "v11", "v13", "v14", "v15"})
 
 # V3 string format: fields separated by null bytes
 V3_DELIM: Final = "\x00"
@@ -64,3 +77,14 @@ MODE_OPTIONS: Final = [MODE_FADE, MODE_STROBE]
 
 MANUFACTURER: Final = "Aquascape"
 MODEL: Final = "Smart Control Hub"
+PUMP_MODEL: Final = "Smart Pump Receiver"
+
+
+def pump_percentage_to_speed(percentage: int) -> int:
+    """Map Home Assistant's percentage to the receiver's 1-10 speed."""
+    return max(PUMP_SPEED_MIN, min(PUMP_SPEED_MAX, math.ceil(percentage / 10)))
+
+
+def pump_speed_to_percentage(speed: int) -> int:
+    """Map receiver speed 1-10 to a Home Assistant percentage."""
+    return max(PUMP_SPEED_MIN, min(PUMP_SPEED_MAX, speed)) * 10

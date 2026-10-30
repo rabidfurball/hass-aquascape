@@ -26,7 +26,9 @@ from .api import (
 )
 from .const import (
     CONF_NAME,
+    CONF_DEVICE_TYPE,
     DOMAIN,
+    DEVICE_TYPE_LIGHT,
     EFFECT_LIST,
     EFFECT_SOLID,
     EFFECT_WHITE_MODE,
@@ -50,6 +52,8 @@ async def async_setup_entry(
 ) -> None:
     """Set up the light entity for this hub."""
     coordinator: AquascapeCoordinator = hass.data[DOMAIN][entry.entry_id]
+    if entry.data.get(CONF_DEVICE_TYPE, DEVICE_TYPE_LIGHT) != DEVICE_TYPE_LIGHT:
+        return
     async_add_entities([AquascapeLight(coordinator)])
 
 

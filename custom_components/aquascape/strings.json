@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Add Aquascape Hub",
-        "description": "Find the auth token in the Aquascape web dashboard at smartcontrol.aquascapeinc.com → Device → Device Info.",
+        "title": "Add Aquascape Smart Control device",
+        "description": "Enter the per-device auth token. For consumer accounts, it can be found in the incoming dashws WebSocket response for the device.",
         "data": {
           "name": "Name",
           "token": "Auth token",
@@ -13,7 +13,8 @@
     },
     "error": {
       "invalid_auth": "Invalid auth token.",
-      "cannot_connect": "Cannot reach the Aquascape backend."
+      "cannot_connect": "Cannot reach the Aquascape backend.",
+      "unsupported_device": "The token is valid, but the device type is not supported."
     },
     "abort": {
       "already_configured": "This token is already configured."

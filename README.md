@@ -1,8 +1,8 @@
 # Aquascape Smart Control — Home Assistant Integration
 
-Home Assistant custom integration for the [Aquascape Smart Control Hub][hub]
-— the WiFi controller that ships with Aquascape's color-changing pond and
-fountain lights (model 84074).
+Home Assistant custom integration for Aquascape Smart Control devices. It
+supports the Smart Control Hub for color-changing lights and the WiFi Smart
+Pump Receiver.
 
 Aquascape doesn't publish an API. This integration uses a reverse-engineered
 HTTPS interface to the Blynk-based backend at
@@ -25,6 +25,8 @@ not available (local control, MQTT push).
 - **Animation Speed slider** (1–10000, matches the Aquascape app)
 - **WiFi RSSI sensor** for diagnostics
 - **Multi-device** — add as many hubs as you have, each with its own token
+- **Pump receiver fan entity** — on/off plus ten speed steps, suitable for
+  Home Assistant's HomeKit Bridge
 
 ## Install
 
@@ -43,9 +45,10 @@ not available (local control, MQTT push).
 
 ## Configure
 
-1. Get your hub's auth token from the
-   [Aquascape web dashboard](https://smartcontrol.aquascapeinc.com) —
-   *Device → Device Info*
+1. Get the device auth token from the
+   [Aquascape web dashboard](https://smartcontrol.aquascapeinc.com). Developer
+   accounts show it in *Device Info*. Consumer accounts may need to inspect the
+   incoming `dashws` WebSocket response for that device.
 2. **Settings → Devices & Services → Add Integration → Aquascape**
 3. Enter a name (e.g. "Front Yard Fountain") and paste the token
 
@@ -91,9 +94,16 @@ Set a solid RGB color via RGB channels.
 | Model | Result |
 |---|---|
 | Smart Control Hub model 84074 (rev 11/24) — color-changing pond/fountain lights | ✅ Working |
+| WiFi Smart Pump Receiver — power and speed 1–10 | 🧪 Initial support |
 
-If you've tested another Aquascape Smart Control product (Pump Receiver,
-Smart Plug), please open an issue or PR.
+### HomeKit
+
+The pump is represented as a Home Assistant `fan`, with power and percentage
+speed. Add the `fan` domain (or the individual pump entity) to Home Assistant's
+HomeKit Bridge. Apple Home then presents a power control and speed slider.
+
+If you've tested another Aquascape Smart Control product, please open an issue
+or PR.
 
 ## Acknowledgements
 

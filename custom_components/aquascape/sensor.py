@@ -15,7 +15,14 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_NAME, DOMAIN, MANUFACTURER, MODEL
+from .const import (
+    CONF_DEVICE_TYPE,
+    CONF_NAME,
+    DEVICE_TYPE_LIGHT,
+    DOMAIN,
+    MANUFACTURER,
+    MODEL,
+)
 from .coordinator import AquascapeCoordinator
 
 
@@ -25,6 +32,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: AquascapeCoordinator = hass.data[DOMAIN][entry.entry_id]
+    if entry.data.get(CONF_DEVICE_TYPE, DEVICE_TYPE_LIGHT) != DEVICE_TYPE_LIGHT:
+        return
     async_add_entities([AquascapeRssiSensor(coordinator)])
 
 

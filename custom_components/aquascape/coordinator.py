@@ -13,13 +13,20 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import AquascapeAPIError, AquascapeClient, parse_v3
 from .const import (
     CONF_SCAN_INTERVAL,
+    CONF_DEVICE_TYPE,
     DEFAULT_SCAN_INTERVAL,
+    DEVICE_TYPE_LIGHT,
+    DEVICE_TYPE_PUMP,
     DOMAIN,
     PIN_ANIMATION_SPEED,
     PIN_BRIGHTNESS,
     PIN_POWER,
+    PIN_PUMP_SPEED,
     PIN_RSSI,
     PIN_V3,
+    PUMP_SPEED_DEFAULT,
+    PUMP_SPEED_MAX,
+    PUMP_SPEED_MIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -51,6 +58,24 @@ class AquascapeCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except AquascapeAPIError as err:
             raise UpdateFailed(str(err)) from err
 
+        # Entries created before pump support are lighting hubs.
+        device_type = self.entry.data.get(CONF_DEVICE_TYPE, DEVICE_TYPE_LIGHT)
+        if device_type == DEVICE_TYPE_PUMP:
+            try:
+                speed = int(float(raw.get(PIN_PUMP_SPEED.lower(), PUMP_SPEED_DEFAULT)))
+            except (TypeError, ValueError):
+                speed = PUMP_SPEED_DEFAULT
+            speed = max(PUMP_SPEED_MIN, min(PUMP_SPEED_MAX, speed))
+            try:
+                power = int(float(raw.get(PIN_POWER.lower(), 0))) == 1
+            except (TypeError, ValueError):
+                power = False
+            return {
+                "device_type": DEVICE_TYPE_PUMP,
+                "power": power,
+                "pump_speed": speed,
+            }
+
         # Pin keys come back lowercase from this backend ('v1', 'v2', ...)
         v3_str = raw.get(PIN_V3.lower(), "")
         v3 = parse_v3(v3_str) if v3_str else {
@@ -61,6 +86,7 @@ class AquascapeCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         }
 
         return {
+            "device_type": DEVICE_TYPE_LIGHT,
             "power": int(raw.get(PIN_POWER.lower(), 0)) == 1,
             "brightness": int(raw.get(PIN_BRIGHTNESS.lower(), 0)),
             "v3_raw": v3_str,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import logging
 from typing import Any
 from urllib.parse import quote
@@ -74,10 +75,17 @@ class AquascapeClient:
         For V3 (color/animation), pre-build the value with `\\x00` separators
         and pass it as a string — this method handles URL-encoding.
         """
-        encoded = quote(str(value), safe="")
+        await self.write_pins({pin: value})
+
+    async def write_pins(self, values: Mapping[str, str | int]) -> None:
+        """Write one or more virtual pins in a single request."""
+        assignments = "&".join(
+            f"{quote(str(pin), safe='')}={quote(str(value), safe='')}"
+            for pin, value in values.items()
+        )
         url = (
             f"{self._base_url}/external/api/update"
-            f"?token={self._token}&{pin}={encoded}"
+            f"?token={quote(self._token, safe='')}&{assignments}"
         )
         try:
             async with self._session.get(url, timeout=10) as resp:
@@ -85,7 +93,7 @@ class AquascapeClient:
                     raise AquascapeAuthError(f"Token rejected ({resp.status})")
                 if resp.status >= 400:
                     raise AquascapeAPIError(
-                        f"Write {pin}={value} failed: HTTP {resp.status}"
+                        f"Write failed for {', '.join(values)}: HTTP {resp.status}"
                     )
         except ClientError as err:
             raise AquascapeAPIError(f"Network error: {err}") from err
