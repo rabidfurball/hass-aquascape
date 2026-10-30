@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Add Aquascape Smart Control device",
-        "description": "Enter the per-device auth token. For consumer accounts, it can be found in the incoming dashws WebSocket response for the device.",
+        "description": "Find the device auth token in the Aquascape web dashboard at smartcontrol.aquascapeinc.com → Device → Device Info. Consumer accounts may need to inspect the incoming dashws WebSocket response for the device instead.",
         "data": {
           "name": "Name",
           "token": "Auth token",

@@ -111,7 +111,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             for coordinator in hass.data[DOMAIN].values()
             if isinstance(coordinator, AquascapeCoordinator)
         )
-        if not has_light_entries:
+        # Services are only registered by lighting hubs, so a pump-only
+        # install never had them.
+        if not has_light_entries and hass.services.has_service(
+            DOMAIN, SERVICE_SET_PALETTE
+        ):
             hass.services.async_remove(DOMAIN, SERVICE_SET_PALETTE)
             hass.services.async_remove(DOMAIN, SERVICE_SET_WHITE_MODE)
             hass.services.async_remove(DOMAIN, SERVICE_SET_SOLID_COLOR)
@@ -135,8 +139,17 @@ def _coordinator_for_device(
         raise HomeAssistantError(f"Device {device_id} not found")
     for entry_id in device.config_entries:
         coordinator = hass.data.get(DOMAIN, {}).get(entry_id)
-        if coordinator is not None:
-            return coordinator
+        if coordinator is None:
+            continue
+        # The lighting services write V3 color data; never send that to a pump.
+        if (
+            coordinator.entry.data.get(CONF_DEVICE_TYPE, DEVICE_TYPE_LIGHT)
+            != DEVICE_TYPE_LIGHT
+        ):
+            raise HomeAssistantError(
+                f"Device {device_id} is not an Aquascape lighting hub"
+            )
+        return coordinator
     raise HomeAssistantError(f"No Aquascape device for {device_id}")
 
 
